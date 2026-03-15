@@ -12,7 +12,7 @@ constructor(private prisma: PrismaService){}
     }
 
     getAllUsers() {
-        return this.prisma.user.findMany({ omit: { password: true } });
+        return this.prisma.user.findMany({ omit: { password: true, refreshToken: true } });
     }
 
 }
