@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
 
 type JwtPayload = {
     sub: number;
@@ -8,24 +9,25 @@ type JwtPayload = {
 };
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     constructor() {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            jwtFromRequest: (req: Request) => req?.cookies?.refreshToken ?? null,
             secretOrKey: process.env.JWT_REFRESH_SECRET,
             ignoreExpiration: false,
+            passReqToCallback: true
         });
 
 
     }
 
     async validate(req: Request, payload: JwtPayload) {
-        const authHeader = req.headers['authorization'];
-        if (!authHeader) {
+        const refreshToken = req.cookies.refreshToken;
+
+        if (!refreshToken) {
             throw new Error('No token provided');
         };
 
-        const refreshToken = authHeader.replace('Bearer ', '').trim();
-        return { ...payload, refreshToken };
+       return { ...payload, refreshToken };
     }
 }
