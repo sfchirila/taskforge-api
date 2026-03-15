@@ -21,7 +21,7 @@ export class AuthService {
         }
 
         const hashedPassword = await bcrypt.hash(userData.password, 10);
-        return this.prisma.user.create({ data: { ...userData, password: hashedPassword }, omit:{ password: true }  });
+        return this.prisma.user.create({ data: { ...userData, password: hashedPassword }, omit:{ password: true, refreshToken: true }  });
     }
 
     async loginUser(loginData: LoginDto) {
