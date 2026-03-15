@@ -66,6 +66,13 @@ export class AuthService {
         return tokens;
     }
 
+    logoutUser(userId: number) {
+        return this.prisma.user.update({
+            where: { id: userId },
+            data: { refreshToken: null },
+        });
+    }
+
     // ? HELPERS
     private async generateTokens(userId: number, userEmail: string) {
         const payload = { sub: userId, userEmail };

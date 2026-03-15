@@ -1,10 +1,10 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { Request, Response } from 'express';
+import {  Response } from 'express';
 
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { JwtRefreshGuard } from './guards/jwt.guard';
+import { JwtAuthGuard, JwtRefreshGuard } from './guards/jwt.guard';
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
@@ -56,4 +56,14 @@ export class AuthController {
         return res.json({ ok: true });
     }
 
+    @UseGuards(JwtAuthGuard)
+    @Post('logout')
+    async logoutUser(@Req() req: any, @Res() res: Response) {
+        await this.authService.logoutUser(req.user.id);
+
+        res.clearCookie('accessToken', COOKIE_OPTIONS);
+        res.clearCookie('refreshToken', COOKIE_OPTIONS);
+
+        return res.json({ message: "Logged out successfully" });
+    }
 }
